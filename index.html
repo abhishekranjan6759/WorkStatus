@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Documentation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .star-container { display: inline-block; position: relative; cursor: pointer; font-size: 2rem; color: #d1d5db; }
+        .star-container .star-fill { position: absolute; top: 0; left: 0; overflow: hidden; color: #f59e0b; pointer-events: none; }
+        .star-container:hover { color: #fbbf24; }
+        .nav-tab { transition: all 0.2s; }
+        .nav-tab.active { background-color: #3b82f6; color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .toast { position: fixed; top: 20px; right: 20px; z-index: 9999; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <!-- Login Screen -->
+    <div id="loginScreen" class="flex items-center justify-center min-h-screen">
+        <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md mx-4">
+            <h1 class="text-2xl font-bold text-center mb-6 text-gray-800">Work Documentation</h1>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input type="email" id="loginEmail" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Enter email">
+            </div>
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                <input type="password" id="loginPassword" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Enter password">
+            </div>
+            <button onclick="login()" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition font-medium">Login</button>
+            <p id="loginError" class="text-red-500 text-sm mt-3 text-center hidden">Invalid credentials</p>
+        </div>
+    </div>
+
+    <!-- Main App (Admin) -->
+    <div id="adminApp" class="hidden">
+        <!-- Header -->
+        <header class="bg-white shadow-sm sticky top-0 z-50">
+            <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
+                <h1 class="text-xl font-bold text-gray-800">📝 My Work Log</h1>
+                <button onclick="logout()" class="text-sm bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Logout</button>
+            </div>
+            <!-- Tab Navigation -->
+            <div class="max-w-4xl mx-auto px-4 pb-2">
+                <div class="flex gap-1 overflow-x-auto pb-1 scrollbar-hide">
+                    <button onclick="switchTab('work')" class="nav-tab active px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap bg-gray-200 text-gray-700">💼 Work Log</button>
+                    <button onclick="switchTab('quicknote')" class="nav-tab px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap bg-gray-200 text-gray-700">⚡ Quick Note</button>
+                    <button onclick="switchTab('scrum')" class="nav-tab px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap bg-gray-200 text-gray-700">📋 Scrum</button>
+                    <button onclick="switchTab('reflection')" class="nav-tab px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap bg-gray-200 text-gray-700">🪞 Reflection</button>
+                    <button onclick="switchTab('yaadhai')" class="nav-tab px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap bg-gray-200 text-gray-700">🧠 Yaad Hai</button>
+                    <button onclick="switchTab('rating')" class="nav-tab px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap bg-gray-200 text-gray-700">⭐ Rate Day</button>
+                    <button onclick="switchTab('history')" class="nav-tab px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap bg-gray-200 text-gray-700">📊 History</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-4xl mx-auto px-4 py-6">
+
+            <!-- TAB 1: Work Log -->
+            <div id="tab-work" class="tab-content active space-y-6">
+                <div class="bg-white rounded-xl shadow p-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                    <input type="date" id="entryDate" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                </div>
+                <div class="bg-white rounded-xl shadow p-4">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-2">💼 What I Worked On</h2>
+                    <textarea id="workDone" rows="3" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none resize-y" placeholder="Describe what you worked on today..."></textarea>
+                </div>
+                <div class="bg-white rounded-xl shadow p-4">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-2">🎫 Jira Ticket / Reference</h2>
+                    <div id="jiraContainer" class="space-y-2">
+                        <div class="flex gap-2 items-center jira-row">
+                            <input type="text" class="jira-input flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="PROJ-1234 or URL or text...">
+                            <button onclick="removeJiraRow(this)" class="text-red-400 hover:text-red-600 text-xl font-bold px-2 hidden remove-btn">×</button>
+                        </div>
+                    </div>
+                    <button onclick="addJiraRow()" class="mt-2 flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium">
+                        <span class="bg-blue-100 rounded w-6 h-6 flex items-center justify-center text-lg leading-none">+</span> Add more
+                    </button>
+                </div>
+                <div class="bg-white rounded-xl shadow p-4">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-2">🚧 Blockers</h2>
+                    <textarea id="blockers" rows="2" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none resize-y" placeholder="Any blockers faced today?"></textarea>
+                </div>
+                <div class="bg-white rounded-xl shadow p-4">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-2">⏱️ Why It Consumed Time</h2>
+                    <textarea id="timeReason" rows="2" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none resize-y" placeholder="Explain if something took more time than expected..."></textarea>
+                </div>
+                <div class="bg-white rounded-xl shadow p-4">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-2">🎓 What Have You Learnt?</h2>
+                    <textarea id="learnings" rows="2" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none resize-y" placeholder="Any new learning today?"></textarea>
+                </div>
+                <div class="bg-white rounded-xl shadow p-4">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-2">📝 Extra Notes</h2>
+                    <textarea id="extraNotes" rows="2" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none resize-y" placeholder="Any additional notes..."></textarea>
+                </div>
+                <button onclick="submitWorkLog()" class="w-full bg-green-600 text-white py-3 rounded-xl hover:bg-green-700 transition font-semibold text-lg shadow">✅ Submit Work Log</button>
+            </div>
+
+            <!-- TAB: Quick Note -->
+            <div id="tab-quicknote" class="tab-content space-y-6">
+                <div class="bg-white rounded-xl shadow p-4">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-1">⚡ Quick Note</h2>
+                    <p class="text-xs text-gray-500 mb-3">In a meeting? Jot it down quick. You can add multiple notes throughout the day.</p>
+                    <textarea id="quickNoteText" rows="3" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-none resize-y" placeholder="Type your quick note here..."></textarea>
+                    <div class="mt-2 flex gap-2">
+                        <input type="text" id="quickNoteTag" class="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-none text-sm" placeholder="Tag (optional) e.g., meeting, call, idea">
+                    </div>
+                    <button onclick="submitQuickNote()" class="mt-3 w-full bg-teal-600 text-white py-2.5 rounded-xl hover:bg-teal-700 transition font-semibold shadow">⚡ Save Quick Note</button>
+                </div>
+
+                <!-- Today's Quick Notes List -->
+                <div class="bg-white rounded-xl shadow p-4">
+                    <h3 class="text-md font-semibold text-gray-700 mb-2">📌 Today's Quick Notes</h3>
+                    <div id="todayQuickNotes" class="space-y-2">
+                        <p class="text-gray-400 text-sm">No quick notes yet today.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: Scrum Meeting Notes -->
+            <div id="tab-scrum" class="tab-content space-y-6">
+                <div class="bg-white rounded-xl shadow p-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                    <input type="date" id="scrumDate" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                </div>
+                <div class="bg-white rounded-xl shadow p-4">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-2">📋 Scrum Meeting Notes</h2>
+                    <textarea id="scrumNotes" rows="4" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none resize-y" placeholder="What did you discuss in scrum today? Yesterday's work, today's plan, blockers..."></textarea>
+                </div>
+                <div class="bg-white rounded-xl shadow p-4">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-2">🎯 Today's Plan</h2>
+                    <textarea id="scrumTodayPlan" rows="2" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none resize-y" placeholder="What are you planning to do today?"></textarea>
+                </div>
+                <div class="bg-white rounded-xl shadow p-4">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-2">🚧 Blockers Raised in Scrum</h2>
+                    <textarea id="scrumBlockers" rows="2" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none resize-y" placeholder="Any blockers raised in the meeting?"></textarea>
+                </div>
+                <button onclick="submitScrum()" class="w-full bg-green-600 text-white py-3 rounded-xl hover:bg-green-700 transition font-semibold text-lg shadow">✅ Submit Scrum Notes</button>
+            </div>
+
+            <!-- TAB 3: Reflection -->
+            <div id="tab-reflection" class="tab-content space-y-6">
+                <div class="bg-white rounded-xl shadow p-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                    <input type="date" id="reflectDate" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+                <div class="bg-white rounded-xl shadow p-4 border-l-4 border-indigo-400">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-3">🪞 Reflection</h2>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600 mb-1">What went well today?</label>
+                            <textarea id="reflectWell" rows="2" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none resize-y" placeholder="Things that went smoothly..."></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600 mb-1">What could have been better?</label>
+                            <textarea id="reflectBetter" rows="2" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none resize-y" placeholder="Areas of improvement..."></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600 mb-1">What will I do differently tomorrow?</label>
+                            <textarea id="reflectTomorrow" rows="2" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none resize-y" placeholder="Action items for tomorrow..."></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600 mb-1">Am I on track with my goals?</label>
+                            <textarea id="reflectGoals" rows="2" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none resize-y" placeholder="Progress towards weekly/monthly goals..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="submitReflection()" class="w-full bg-indigo-600 text-white py-3 rounded-xl hover:bg-indigo-700 transition font-semibold text-lg shadow">✅ Submit Reflection</button>
+            </div>
+
+            <!-- TAB 4: Kya Tumhe Yaad Hai -->
+            <div id="tab-yaadhai" class="tab-content space-y-6">
+                <div class="bg-white rounded-xl shadow p-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                    <input type="date" id="yaadDate" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-rose-500 focus:outline-none">
+                </div>
+                <div class="bg-white rounded-xl shadow p-4 border-l-4 border-rose-400">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-2">🧠 Kya Tumhe Yaad Hai?</h2>
+                    <p class="text-xs text-gray-500 mb-3">Important talks, feedback from others, things people said to you — note it here before you forget.</p>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600 mb-1">Who said it?</label>
+                            <input type="text" id="yaadWho" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-rose-500 focus:outline-none" placeholder="Person's name or role...">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600 mb-1">What was said / feedback / important talk</label>
+                            <textarea id="yaadHai" rows="4" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-rose-500 focus:outline-none resize-y" placeholder="Kisi ne kya bola? Koi important baat? Feedback mila? Yahan likh do..."></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600 mb-1">Context / Situation</label>
+                            <textarea id="yaadContext" rows="2" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-rose-500 focus:outline-none resize-y" placeholder="In what context was this said? Meeting? 1:1? Slack?"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="submitYaadHai()" class="w-full bg-rose-600 text-white py-3 rounded-xl hover:bg-rose-700 transition font-semibold text-lg shadow">✅ Submit Memory</button>
+            </div>
+
+            <!-- TAB 5: Rate Your Day -->
+            <div id="tab-rating" class="tab-content space-y-6">
+                <div class="bg-white rounded-xl shadow p-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                    <input type="date" id="ratingDate" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none">
+                </div>
+                <div class="bg-white rounded-xl shadow p-4">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-2">⭐ Rate Your Day</h2>
+                    <p class="text-xs text-gray-500 mb-3">Click left-half for 0.5, right-half for full star</p>
+                    <div id="starRating" class="flex gap-0 select-none">
+                        <span class="star-container" data-value="1"><span class="star-fill">★</span>★</span>
+                        <span class="star-container" data-value="2"><span class="star-fill">★</span>★</span>
+                        <span class="star-container" data-value="3"><span class="star-fill">★</span>★</span>
+                        <span class="star-container" data-value="4"><span class="star-fill">★</span>★</span>
+                        <span class="star-container" data-value="5"><span class="star-fill">★</span>★</span>
+                    </div>
+                    <p id="ratingText" class="text-sm text-gray-500 mt-2">No rating selected</p>
+                </div>
+                <div class="bg-white rounded-xl shadow p-4">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-2">💬 Why this rating?</h2>
+                    <textarea id="ratingReason" rows="3" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none resize-y" placeholder="Briefly explain why you rated the day this way..."></textarea>
+                </div>
+                <button onclick="submitRating()" class="w-full bg-yellow-500 text-white py-3 rounded-xl hover:bg-yellow-600 transition font-semibold text-lg shadow">✅ Submit Rating</button>
+            </div>
+
+            <!-- TAB 6: History -->
+            <div id="tab-history" class="tab-content space-y-6">
+                <div class="bg-white rounded-xl shadow p-4">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-3">📊 View Past Entries</h2>
+                    <div class="mb-3">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Select Sheet</label>
+                        <select id="historySheet" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <option value="workEntries">💼 Work Log</option>
+                            <option value="quickNoteEntries">⚡ Quick Notes</option>
+                            <option value="scrumEntries">📋 Scrum Notes</option>
+                            <option value="reflectionEntries">🪞 Reflection</option>
+                            <option value="yaadEntries">🧠 Yaad Hai</option>
+                            <option value="ratingEntries">⭐ Ratings</option>
+                        </select>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="filterEntries('week')" class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 font-medium text-sm">This Week</button>
+                        <button onclick="filterEntries('month')" class="px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 font-medium text-sm">This Month</button>
+                        <button onclick="filterEntries('q1')" class="px-4 py-2 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 font-medium text-sm">Q1 (Apr-Jun)</button>
+                        <button onclick="filterEntries('q2')" class="px-4 py-2 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 font-medium text-sm">Q2 (Jul-Sep)</button>
+                        <button onclick="filterEntries('q3')" class="px-4 py-2 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 font-medium text-sm">Q3 (Oct-Dec)</button>
+                        <button onclick="filterEntries('q4')" class="px-4 py-2 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 font-medium text-sm">Q4 (Jan-Mar)</button>
+                    </div>
+                    <div id="filteredEntries" class="mt-4 space-y-3"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- HR View -->
+    <div id="hrApp" class="hidden">
+        <header class="bg-white shadow-sm sticky top-0 z-50">
+            <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
+                <h1 class="text-xl font-bold text-gray-800">👔 HR Status View</h1>
+                <div class="flex gap-2">
+                    <button onclick="exportHRData()" class="text-sm bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">Export CSV</button>
+                    <button onclick="logout()" class="text-sm bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Logout</button>
+                </div>
+            </div>
+        </header>
+        <main class="max-w-4xl mx-auto px-4 py-6 space-y-4">
+            <div class="bg-white rounded-xl shadow p-4">
+                <h2 class="text-lg font-semibold text-gray-800 mb-3">📊 Filter Entries</h2>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="filterHREntries('week')" class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 font-medium text-sm">This Week</button>
+                    <button onclick="filterHREntries('month')" class="px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 font-medium text-sm">This Month</button>
+                    <button onclick="filterHREntries('q1')" class="px-4 py-2 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 font-medium text-sm">Q1 (Apr-Jun)</button>
+                    <button onclick="filterHREntries('q2')" class="px-4 py-2 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 font-medium text-sm">Q2 (Jul-Sep)</button>
+                    <button onclick="filterHREntries('q3')" class="px-4 py-2 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 font-medium text-sm">Q3 (Oct-Dec)</button>
+                    <button onclick="filterHREntries('q4')" class="px-4 py-2 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 font-medium text-sm">Q4 (Jan-Mar)</button>
+                </div>
+            </div>
+            <div id="hrEntries" class="space-y-3"></div>
+        </main>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast hidden">
+        <div id="toastMsg" class="bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg font-medium">✅ Submitted!</div>
+    </div>
+
+    <script>
+        // Config
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyGFP8I5ivG-2mQWj4Fr2IWBjVJb2EHkN9TkL8n0wbjYt4Fyb4G_KLrcT25_bInWC6H/exec'; // Paste your Google Apps Script Web App URL here
+        const USERS = {
+            admin: { email: 'abhishekranjan@monocept.com', password: 'India@123', role: 'admin' },
+            hr: { email: 'ranjan@status', password: 'Monocept@123', role: 'hr' }
+        };
+
+        let currentUser = null;
+        let currentRating = 0;
+
+        // Set today's date on all date fields
+        const today = new Date().toISOString().split('T')[0];
+        document.querySelectorAll('input[type="date"]').forEach(el => el.value = today);
+
+        // Tab Navigation
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Half-star rating
+        document.querySelectorAll('.star-container').forEach(star => {
+            star.addEventListener('click', (e) => {
+                const rect = star.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const halfWidth = rect.width / 2;
+                const baseValue = parseInt(star.dataset.value);
+                currentRating = clickX <= halfWidth ? baseValue - 0.5 : baseValue;
+                updateStars();
+            });
+        });
+
+        function updateStars() {
+            document.querySelectorAll('.star-container').forEach(star => {
+                const value = parseInt(star.dataset.value);
+                const fill = star.querySelector('.star-fill');
+                if (currentRating >= value) fill.style.width = '100%';
+                else if (currentRating >= value - 0.5) fill.style.width = '50%';
+                else fill.style.width = '0%';
+            });
+            if (currentRating === 0) {
+                document.getElementById('ratingText').textContent = 'No rating selected';
+            } else {
+                const labels = { 0.5:'😞 0.5', 1:'😞 1.0', 1.5:'😐 1.5', 2:'😐 2.0', 2.5:'🙂 2.5', 3:'🙂 3.0', 3.5:'😊 3.5', 4:'😊 4.0', 4.5:'🌟 4.5', 5:'🌟 5.0' };
+                document.getElementById('ratingText').textContent = labels[currentRating] || `${currentRating} / 5`;
+            }
+        }
+
+        // Login / Logout
+        function login() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const errorEl = document.getElementById('loginError');
+            let matched = null;
+            for (const key in USERS) {
+                if (USERS[key].email === email && USERS[key].password === password) { matched = USERS[key]; break; }
+            }
+            if (matched) {
+                currentUser = matched;
+                errorEl.classList.add('hidden');
+                document.getElementById('loginScreen').classList.add('hidden');
+                if (matched.role === 'admin') document.getElementById('adminApp').classList.remove('hidden');
+                else { document.getElementById('hrApp').classList.remove('hidden'); filterHREntries('week'); }
+            } else { errorEl.classList.remove('hidden'); }
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('adminApp').classList.add('hidden');
+            document.getElementById('hrApp').classList.add('hidden');
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('loginEmail').value = '';
+            document.getElementById('loginPassword').value = '';
+        }
+
+        // Toast
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').textContent = msg || '✅ Submitted!';
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 3000);
+        }
+
+        // Send to Google Sheet (with retry queue for slow writes)
+        var pendingQueue = JSON.parse(localStorage.getItem('pendingSheetQueue') || '[]');
+
+        function sendToSheet(data, sheetName) {
+            if (!SCRIPT_URL) return;
+            
+            var payload = { ...data, sheetName };
+            
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify(payload)
+            }).then(() => {
+                // With no-cors we can't read response, but request was sent
+                console.log('Sent to ' + sheetName);
+            }).catch(err => {
+                console.log('Sheet sync failed, queuing:', err);
+                pendingQueue.push(payload);
+                localStorage.setItem('pendingSheetQueue', JSON.stringify(pendingQueue));
+            });
+        }
+
+        // Retry pending queue on page load
+        function retryPendingQueue() {
+            if (!SCRIPT_URL || pendingQueue.length === 0) return;
+            var item = pendingQueue.shift();
+            fetch(SCRIPT_URL, {
+                method: 'POST', mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify(item)
+            }).then(() => {
+                localStorage.setItem('pendingSheetQueue', JSON.stringify(pendingQueue));
+                if (pendingQueue.length > 0) setTimeout(retryPendingQueue, 2000);
+            }).catch(() => {
+                pendingQueue.unshift(item); // put it back
+            });
+        }
+        setTimeout(retryPendingQueue, 3000); // retry after page loads
+
+        // Jira multi-input
+        function addJiraRow() {
+            const container = document.getElementById('jiraContainer');
+            const row = document.createElement('div');
+            row.className = 'flex gap-2 items-center jira-row';
+            row.innerHTML = `
+                <input type="text" class="jira-input flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="PROJ-1234 or URL or text...">
+                <button onclick="removeJiraRow(this)" class="text-red-400 hover:text-red-600 text-xl font-bold px-2">×</button>
+            `;
+            container.appendChild(row);
+            updateRemoveButtons();
+        }
+
+        function removeJiraRow(btn) {
+            btn.parentElement.remove();
+            updateRemoveButtons();
+        }
+
+        function updateRemoveButtons() {
+            const rows = document.querySelectorAll('#jiraContainer .jira-row');
+            rows.forEach(row => {
+                const btn = row.querySelector('.remove-btn');
+                if (btn) btn.classList.toggle('hidden', rows.length <= 1);
+            });
+        }
+
+        function getJiraValues() {
+            const inputs = document.querySelectorAll('#jiraContainer .jira-input');
+            return Array.from(inputs).map(i => i.value.trim()).filter(v => v);
+        }
+
+        function clearJiraInputs() {
+            const container = document.getElementById('jiraContainer');
+            container.innerHTML = `
+                <div class="flex gap-2 items-center jira-row">
+                    <input type="text" class="jira-input flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="PROJ-1234 or URL or text...">
+                    <button onclick="removeJiraRow(this)" class="text-red-400 hover:text-red-600 text-xl font-bold px-2 hidden remove-btn">×</button>
+                </div>
+            `;
+        }
+
+        // Submit: Quick Note (multiple per day)
+        function submitQuickNote() {
+            var noteText = document.getElementById('quickNoteText').value.trim();
+            var noteTag = document.getElementById('quickNoteTag').value.trim();
+            if (!noteText) { alert('Please type a note.'); return; }
+            
+            var entry = {
+                date: new Date().toISOString().split('T')[0],
+                time: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+                note: noteText,
+                tag: noteTag,
+                timestamp: new Date().toISOString()
+            };
+            
+            var entries = JSON.parse(localStorage.getItem('quickNoteEntries') || '[]');
+            entries.push(entry);
+            localStorage.setItem('quickNoteEntries', JSON.stringify(entries));
+            sendToSheet(entry, 'QuickNotes');
+            
+            document.getElementById('quickNoteText').value = '';
+            document.getElementById('quickNoteTag').value = '';
+            showToast('⚡ Quick note saved!');
+            renderTodayQuickNotes();
+        }
+
+        function renderTodayQuickNotes() {
+            var entries = JSON.parse(localStorage.getItem('quickNoteEntries') || '[]');
+            var today = new Date().toISOString().split('T')[0];
+            var todayNotes = entries.filter(function(e) { return e.date === today; });
+            var container = document.getElementById('todayQuickNotes');
+            
+            if (todayNotes.length === 0) {
+                container.innerHTML = '<p class="text-gray-400 text-sm">No quick notes yet today.</p>';
+                return;
+            }
+            
+            container.innerHTML = todayNotes.map(function(e, i) {
+                return '<div class="bg-teal-50 border border-teal-200 rounded-lg p-2 text-sm">' +
+                    '<div class="flex justify-between items-center">' +
+                        '<span class="text-teal-700 font-medium">' + e.time + '</span>' +
+                        (e.tag ? '<span class="bg-teal-100 text-teal-600 text-xs px-2 py-0.5 rounded">' + e.tag + '</span>' : '') +
+                    '</div>' +
+                    '<p class="text-gray-700 mt-1">' + e.note + '</p>' +
+                '</div>';
+            }).join('');
+        }
+
+        // Load today's quick notes on page ready
+        renderTodayQuickNotes();
+
+        // Submit: Work Log
+        function submitWorkLog() {
+            const entry = {
+                date: document.getElementById('entryDate').value,
+                workDone: document.getElementById('workDone').value.trim(),
+                jiraTicket: getJiraValues().join(' | '),
+                blockers: document.getElementById('blockers').value.trim(),
+                timeReason: document.getElementById('timeReason').value.trim(),
+                learnings: document.getElementById('learnings').value.trim(),
+                extraNotes: document.getElementById('extraNotes').value.trim(),
+                timestamp: new Date().toISOString()
+            };
+            if (!entry.workDone) { alert('Please fill in what you worked on.'); return; }
+            const entries = JSON.parse(localStorage.getItem('workEntries') || '[]');
+            entries.push(entry); localStorage.setItem('workEntries', JSON.stringify(entries));
+            sendToSheet(entry, 'WorkLog');
+            document.getElementById('workDone').value = '';
+            clearJiraInputs();
+            document.getElementById('blockers').value = '';
+            document.getElementById('timeReason').value = '';
+            document.getElementById('learnings').value = '';
+            document.getElementById('extraNotes').value = '';
+            showToast('✅ Work Log submitted!');
+        }
+
+        // Submit: Scrum
+        function submitScrum() {
+            const entry = {
+                date: document.getElementById('scrumDate').value,
+                scrumNotes: document.getElementById('scrumNotes').value.trim(),
+                todayPlan: document.getElementById('scrumTodayPlan').value.trim(),
+                scrumBlockers: document.getElementById('scrumBlockers').value.trim(),
+                timestamp: new Date().toISOString()
+            };
+            if (!entry.scrumNotes) { alert('Please fill in scrum notes.'); return; }
+            const entries = JSON.parse(localStorage.getItem('scrumEntries') || '[]');
+            entries.push(entry); localStorage.setItem('scrumEntries', JSON.stringify(entries));
+            sendToSheet(entry, 'ScrumNotes');
+            document.getElementById('scrumNotes').value = '';
+            document.getElementById('scrumTodayPlan').value = '';
+            document.getElementById('scrumBlockers').value = '';
+            showToast('✅ Scrum Notes submitted!');
+        }
+
+        // Submit: Reflection
+        function submitReflection() {
+            const entry = {
+                date: document.getElementById('reflectDate').value,
+                wentWell: document.getElementById('reflectWell').value.trim(),
+                couldBeBetter: document.getElementById('reflectBetter').value.trim(),
+                doTomorrow: document.getElementById('reflectTomorrow').value.trim(),
+                goalsTrack: document.getElementById('reflectGoals').value.trim(),
+                timestamp: new Date().toISOString()
+            };
+            if (!entry.wentWell && !entry.couldBeBetter) { alert('Please fill at least one reflection field.'); return; }
+            const entries = JSON.parse(localStorage.getItem('reflectionEntries') || '[]');
+            entries.push(entry); localStorage.setItem('reflectionEntries', JSON.stringify(entries));
+            sendToSheet(entry, 'Reflection');
+            document.getElementById('reflectWell').value = '';
+            document.getElementById('reflectBetter').value = '';
+            document.getElementById('reflectTomorrow').value = '';
+            document.getElementById('reflectGoals').value = '';
+            showToast('✅ Reflection submitted!');
+        }
+
+        // Submit: Yaad Hai
+        function submitYaadHai() {
+            const entry = {
+                date: document.getElementById('yaadDate').value,
+                who: document.getElementById('yaadWho').value.trim(),
+                what: document.getElementById('yaadHai').value.trim(),
+                context: document.getElementById('yaadContext').value.trim(),
+                timestamp: new Date().toISOString()
+            };
+            if (!entry.what) { alert('Please fill in what was said.'); return; }
+            const entries = JSON.parse(localStorage.getItem('yaadEntries') || '[]');
+            entries.push(entry); localStorage.setItem('yaadEntries', JSON.stringify(entries));
+            sendToSheet(entry, 'YaadHai');
+            document.getElementById('yaadWho').value = '';
+            document.getElementById('yaadHai').value = '';
+            document.getElementById('yaadContext').value = '';
+            showToast('✅ Memory saved!');
+        }
+
+        // Submit: Rating
+        function submitRating() {
+            const entry = {
+                date: document.getElementById('ratingDate').value,
+                rating: currentRating,
+                reason: document.getElementById('ratingReason').value.trim(),
+                timestamp: new Date().toISOString()
+            };
+            if (currentRating === 0) { alert('Please select a rating.'); return; }
+            const entries = JSON.parse(localStorage.getItem('ratingEntries') || '[]');
+            entries.push(entry); localStorage.setItem('ratingEntries', JSON.stringify(entries));
+            sendToSheet(entry, 'DayRating');
+            currentRating = 0; updateStars();
+            document.getElementById('ratingReason').value = '';
+            showToast('✅ Rating submitted!');
+        }
+
+        // Filter logic (Indian FY Quarters)
+        function getDateRange(filter) {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth();
+            let start, end;
+            switch(filter) {
+                case 'week':
+                    const day = now.getDay();
+                    start = new Date(now); start.setDate(now.getDate() - (day === 0 ? 6 : day - 1));
+                    end = new Date(start); end.setDate(start.getDate() + 6); break;
+                case 'month':
+                    start = new Date(year, month, 1); end = new Date(year, month + 1, 0); break;
+                case 'q1': start = new Date(month >= 3 ? year : year-1, 3, 1); end = new Date(month >= 3 ? year : year-1, 5, 30); break;
+                case 'q2': start = new Date(month >= 6 ? year : year-1, 6, 1); end = new Date(month >= 6 ? year : year-1, 8, 30); break;
+                case 'q3': start = new Date(month >= 9 ? year : year-1, 9, 1); end = new Date(month >= 9 ? year : year-1, 11, 31); break;
+                case 'q4': start = new Date(month <= 2 ? year : year+1, 0, 1); end = new Date(month <= 2 ? year : year+1, 2, 31); break;
+            }
+            start.setHours(0,0,0,0); end.setHours(23,59,59,999);
+            return { start, end };
+        }
+
+        function getStarDisplay(rating) {
+            let d = '';
+            for (let i = 1; i <= 5; i++) { if (rating >= i) d += '★'; else if (rating >= i-0.5) d += '⯪'; else d += '☆'; }
+            return d + ` (${rating}/5)`;
+        }
+
+        // Admin History filter
+        function filterEntries(filter) {
+            const sheetKey = document.getElementById('historySheet').value;
+            const entries = JSON.parse(localStorage.getItem(sheetKey) || '[]');
+            const { start, end } = getDateRange(filter);
+            const filtered = entries.filter(e => { const d = new Date(e.date); return d >= start && d <= end; });
+            const container = document.getElementById('filteredEntries');
+            if (filtered.length === 0) { container.innerHTML = '<p class="text-gray-500 text-sm">No entries found.</p>'; return; }
+            container.innerHTML = filtered.map(e => renderEntry(e, sheetKey)).join('');
+        }
+
+        function renderEntry(e, sheetKey) {
+            let html = `<div class="border rounded-lg p-3 bg-gray-50"><p class="font-semibold text-gray-800 mb-1">${e.date}</p>`;
+            switch(sheetKey) {
+                case 'workEntries':
+                    html += `<p class="text-sm"><strong>Work:</strong> ${e.workDone}</p>`;
+                    if (e.jiraTicket) html += `<p class="text-sm"><strong>Ticket:</strong> ${e.jiraTicket}</p>`;
+                    if (e.blockers) html += `<p class="text-sm"><strong>Blockers:</strong> ${e.blockers}</p>`;
+                    if (e.timeReason) html += `<p class="text-sm"><strong>Time Reason:</strong> ${e.timeReason}</p>`;
+                    if (e.learnings) html += `<p class="text-sm"><strong>Learnt:</strong> ${e.learnings}</p>`;
+                    if (e.extraNotes) html += `<p class="text-sm"><strong>Extra:</strong> ${e.extraNotes}</p>`;
+                    break;
+                case 'quickNoteEntries':
+                    html += `<p class="text-sm"><strong>${e.time || ''}</strong> ${e.note}</p>`;
+                    if (e.tag) html += `<p class="text-xs text-teal-600">🏷️ ${e.tag}</p>`;
+                    break;
+                case 'scrumEntries':
+                    html += `<p class="text-sm"><strong>Scrum:</strong> ${e.scrumNotes}</p>`;
+                    if (e.todayPlan) html += `<p class="text-sm"><strong>Today's Plan:</strong> ${e.todayPlan}</p>`;
+                    if (e.scrumBlockers) html += `<p class="text-sm"><strong>Blockers:</strong> ${e.scrumBlockers}</p>`;
+                    break;
+                case 'reflectionEntries':
+                    if (e.wentWell) html += `<p class="text-sm text-indigo-700"><strong>Went Well:</strong> ${e.wentWell}</p>`;
+                    if (e.couldBeBetter) html += `<p class="text-sm text-indigo-700"><strong>Could Be Better:</strong> ${e.couldBeBetter}</p>`;
+                    if (e.doTomorrow) html += `<p class="text-sm text-indigo-700"><strong>Tomorrow:</strong> ${e.doTomorrow}</p>`;
+                    if (e.goalsTrack) html += `<p class="text-sm text-indigo-700"><strong>Goals:</strong> ${e.goalsTrack}</p>`;
+                    break;
+                case 'yaadEntries':
+                    if (e.who) html += `<p class="text-sm text-rose-700"><strong>Who:</strong> ${e.who}</p>`;
+                    html += `<p class="text-sm text-rose-700"><strong>What:</strong> ${e.what}</p>`;
+                    if (e.context) html += `<p class="text-sm text-rose-700"><strong>Context:</strong> ${e.context}</p>`;
+                    break;
+                case 'ratingEntries':
+                    html += `<p class="text-sm text-yellow-600"><strong>Rating:</strong> ${getStarDisplay(e.rating)}</p>`;
+                    if (e.reason) html += `<p class="text-sm"><strong>Reason:</strong> ${e.reason}</p>`;
+                    break;
+            }
+            html += '</div>';
+            return html;
+        }
+
+        // HR filter - can only see Work Log + Scrum (limited fields)
+        function filterHREntries(filter) {
+            const workEntries = JSON.parse(localStorage.getItem('workEntries') || '[]');
+            const scrumEntries = JSON.parse(localStorage.getItem('scrumEntries') || '[]');
+            const { start, end } = getDateRange(filter);
+            const filteredWork = workEntries.filter(e => { const d = new Date(e.date); return d >= start && d <= end; });
+            const filteredScrum = scrumEntries.filter(e => { const d = new Date(e.date); return d >= start && d <= end; });
+            const container = document.getElementById('hrEntries');
+            if (filteredWork.length === 0 && filteredScrum.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-sm">No entries found.</p>'; return;
+            }
+            let html = '';
+            if (filteredWork.length > 0) {
+                html += '<h3 class="font-semibold text-gray-700 mt-2">💼 Work Log</h3>';
+                html += filteredWork.map(e => `
+                    <div class="border rounded-lg p-3 bg-gray-50">
+                        <p class="font-semibold text-gray-800 mb-1">${e.date}</p>
+                        <p class="text-sm"><strong>Work Done:</strong> ${e.workDone}</p>
+                        ${e.jiraTicket ? `<p class="text-sm"><strong>Ticket:</strong> ${e.jiraTicket}</p>` : ''}
+                        ${e.blockers ? `<p class="text-sm"><strong>Blockers:</strong> ${e.blockers}</p>` : ''}
+                        ${e.timeReason ? `<p class="text-sm"><strong>Time Reason:</strong> ${e.timeReason}</p>` : ''}
+                    </div>`).join('');
+            }
+            if (filteredScrum.length > 0) {
+                html += '<h3 class="font-semibold text-gray-700 mt-4">📋 Scrum Notes</h3>';
+                html += filteredScrum.map(e => `
+                    <div class="border rounded-lg p-3 bg-gray-50">
+                        <p class="font-semibold text-gray-800 mb-1">${e.date}</p>
+                        <p class="text-sm"><strong>Scrum:</strong> ${e.scrumNotes}</p>
+                        ${e.todayPlan ? `<p class="text-sm"><strong>Plan:</strong> ${e.todayPlan}</p>` : ''}
+                        ${e.scrumBlockers ? `<p class="text-sm"><strong>Blockers:</strong> ${e.scrumBlockers}</p>` : ''}
+                    </div>`).join('');
+            }
+            container.innerHTML = html;
+        }
+
+        // HR Export CSV (only work log + scrum)
+        function exportHRData() {
+            const workEntries = JSON.parse(localStorage.getItem('workEntries') || '[]');
+            const scrumEntries = JSON.parse(localStorage.getItem('scrumEntries') || '[]');
+            if (workEntries.length === 0 && scrumEntries.length === 0) { alert('No entries to export.'); return; }
+            const headers = ['Date', 'Type', 'Work Done', 'Jira Ticket', 'Blockers', 'Time Reason', 'Scrum Notes', 'Today Plan', 'Scrum Blockers'];
+            const rows = [];
+            workEntries.forEach(e => rows.push([e.date, 'Work', `"${e.workDone||''}"`, `"${e.jiraTicket||''}"`, `"${e.blockers||''}"`, `"${e.timeReason||''}"`, '', '', '']));
+            scrumEntries.forEach(e => rows.push([e.date, 'Scrum', '', '', '', '', `"${e.scrumNotes||''}"`, `"${e.todayPlan||''}"`, `"${e.scrumBlockers||''}"`]));
+            let csv = headers.join(',') + '\n' + rows.map(r => r.join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = 'work_status_report.csv'; a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Enter key login
+        document.getElementById('loginPassword').addEventListener('keypress', (e) => { if (e.key === 'Enter') login(); });
+    </script>
+</body>
+</html>
