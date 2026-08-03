@@ -111,9 +111,14 @@
                     <button onclick="submitQuickNote()" class="mt-3 w-full bg-teal-600 text-white py-2.5 rounded-xl hover:bg-teal-700 transition font-semibold shadow">⚡ Save Quick Note</button>
                 </div>
 
-                <!-- Today's Quick Notes List -->
+                <!-- Quick Notes Filter + List -->
                 <div class="bg-white rounded-xl shadow p-4">
-                    <h3 class="text-md font-semibold text-gray-700 mb-2">📌 Today's Quick Notes</h3>
+                    <h3 class="text-md font-semibold text-gray-700 mb-2">📌 Quick Notes</h3>
+                    <div class="flex flex-wrap gap-2 mb-3">
+                        <button onclick="filterQuickNotes('today')" class="px-3 py-1.5 bg-teal-100 text-teal-700 rounded-lg hover:bg-teal-200 font-medium text-sm">Today</button>
+                        <button onclick="filterQuickNotes('week')" class="px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 font-medium text-sm">This Week</button>
+                        <button onclick="filterQuickNotes('month')" class="px-3 py-1.5 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 font-medium text-sm">This Month</button>
+                    </div>
                     <div id="todayQuickNotes" class="space-y-2">
                         <p class="text-gray-400 text-sm">No quick notes yet today.</p>
                     </div>
@@ -346,21 +351,38 @@
             }
             if (matched) {
                 currentUser = matched;
+                localStorage.setItem('loggedInUser', JSON.stringify(matched));
                 errorEl.classList.add('hidden');
-                document.getElementById('loginScreen').classList.add('hidden');
-                if (matched.role === 'admin') document.getElementById('adminApp').classList.remove('hidden');
-                else { document.getElementById('hrApp').classList.remove('hidden'); filterHREntries('week'); }
+                showAppForRole(matched.role);
             } else { errorEl.classList.remove('hidden'); }
         }
 
         function logout() {
             currentUser = null;
+            localStorage.removeItem('loggedInUser');
             document.getElementById('adminApp').classList.add('hidden');
             document.getElementById('hrApp').classList.add('hidden');
             document.getElementById('loginScreen').classList.remove('hidden');
             document.getElementById('loginEmail').value = '';
             document.getElementById('loginPassword').value = '';
         }
+
+        function showAppForRole(role) {
+            document.getElementById('loginScreen').classList.add('hidden');
+            if (role === 'admin') document.getElementById('adminApp').classList.remove('hidden');
+            else { document.getElementById('hrApp').classList.remove('hidden'); filterHREntries('week'); }
+        }
+
+        // Auto-login from saved session
+        (function checkSavedLogin() {
+            var saved = localStorage.getItem('loggedInUser');
+            if (saved) {
+                try {
+                    currentUser = JSON.parse(saved);
+                    showAppForRole(currentUser.role);
+                } catch(e) { localStorage.removeItem('loggedInUser'); }
+            }
+        })();
 
         // Toast
         function showToast(msg) {
@@ -477,29 +499,59 @@
         }
 
         function renderTodayQuickNotes() {
-            var entries = JSON.parse(localStorage.getItem('quickNoteEntries') || '[]');
-            var today = new Date().toISOString().split('T')[0];
-            var todayNotes = entries.filter(function(e) { return e.date === today; });
-            var container = document.getElementById('todayQuickNotes');
-            
-            if (todayNotes.length === 0) {
-                container.innerHTML = '<p class="text-gray-400 text-sm">No quick notes yet today.</p>';
-                return;
-            }
-            
-            container.innerHTML = todayNotes.map(function(e, i) {
-                return '<div class="bg-teal-50 border border-teal-200 rounded-lg p-2 text-sm">' +
-                    '<div class="flex justify-between items-center">' +
-                        '<span class="text-teal-700 font-medium">' + e.time + '</span>' +
-                        (e.tag ? '<span class="bg-teal-100 text-teal-600 text-xs px-2 py-0.5 rounded">' + e.tag + '</span>' : '') +
-                    '</div>' +
-                    '<p class="text-gray-700 mt-1">' + e.note + '</p>' +
-                '</div>';
-            }).join('');
+            filterQuickNotes('today');
         }
 
-        // Load today's quick notes on page ready
-        renderTodayQuickNotes();
+        function filterQuickNotes(filter) {
+            var entries = JSON.parse(localStorage.getItem('quickNoteEntries') || '[]');
+            var today = new Date().toISOString().split('T')[0];
+            var filtered = [];
+
+            if (filter === 'today') {
+                filtered = entries.filter(function(e) { return e.date === today; });
+            } else {
+                var range = getDateRange(filter);
+                filtered = entries.filter(function(e) {
+                    var d = new Date(e.date);
+                    return d >= range.start && d <= range.end;
+                });
+            }
+
+            var container = document.getElementById('todayQuickNotes');
+            
+            if (filtered.length === 0) {
+                container.innerHTML = '<p class="text-gray-400 text-sm">No quick notes found.</p>';
+                return;
+            }
+
+            // Group by date
+            var grouped = {};
+            filtered.forEach(function(e) {
+                if (!grouped[e.date]) grouped[e.date] = [];
+                grouped[e.date].push(e);
+            });
+
+            var html = '';
+            var dates = Object.keys(grouped).sort().reverse();
+            dates.forEach(function(date) {
+                if (filter !== 'today') {
+                    html += '<p class="text-xs font-semibold text-gray-500 mt-2 mb-1">' + date + '</p>';
+                }
+                grouped[date].forEach(function(e) {
+                    html += '<div class="bg-teal-50 border border-teal-200 rounded-lg p-2 text-sm">' +
+                        '<div class="flex justify-between items-center">' +
+                            '<span class="text-teal-700 font-medium">' + e.time + '</span>' +
+                            (e.tag ? '<span class="bg-teal-100 text-teal-600 text-xs px-2 py-0.5 rounded">' + e.tag + '</span>' : '') +
+                        '</div>' +
+                        '<p class="text-gray-700 mt-1">' + e.note + '</p>' +
+                    '</div>';
+                });
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Load today's quick notes on page ready (called after getDateRange is defined below)
 
         // Submit: Work Log
         function submitWorkLog() {
@@ -623,6 +675,9 @@
             start.setHours(0,0,0,0); end.setHours(23,59,59,999);
             return { start, end };
         }
+
+        // Load quick notes after getDateRange is available
+        renderTodayQuickNotes();
 
         function getStarDisplay(rating) {
             let d = '';
