@@ -13,6 +13,12 @@
  * IMPORTANT: Make sure runtime is set to V8 (default for new projects)
  */
 
+// User credentials
+var USERS = {
+  admin: { email: 'abhishekranjan@monocept.com', password: 'India@123', role: 'admin' },
+  hr: { email: 'ranjan@status', password: 'Monocept@123', role: 'hr' }
+};
+
 // Sheet configurations
 var SHEETS = {
   WorkLog: ['Timestamp', 'Date', 'Work Done', 'Jira Ticket', 'Blockers', 'Time Reason', 'Learnings', 'Extra Notes'],
@@ -66,6 +72,30 @@ function doPost(e) {
     lock.waitLock(30000);
     
     var data = JSON.parse(e.postData.contents);
+    
+    // Handle login verification
+    if (data.action === 'login') {
+      lock.releaseLock();
+      var email = (data.email || '').trim();
+      var password = data.password || '';
+      var matched = null;
+      for (var key in USERS) {
+        if (USERS[key].email === email && USERS[key].password === password) {
+          matched = USERS[key];
+          break;
+        }
+      }
+      if (matched) {
+        return ContentService.createTextOutput(
+          JSON.stringify({ status: 'success', role: matched.role, email: matched.email })
+        ).setMimeType(ContentService.MimeType.JSON);
+      } else {
+        return ContentService.createTextOutput(
+          JSON.stringify({ status: 'error', message: 'Invalid credentials' })
+        ).setMimeType(ContentService.MimeType.JSON);
+      }
+    }
+    
     var sheetName = data.sheetName || 'WorkLog';
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var sheet = ss.getSheetByName(sheetName);
