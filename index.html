@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Work Documentation</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23f59e0b'/><text x='50' y='72' font-size='60' text-anchor='middle' fill='white'>📝</text></svg>">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .star-container { display: inline-block; position: relative; cursor: pointer; font-size: 2rem; color: #d1d5db; }
@@ -39,19 +41,19 @@
         <!-- Header -->
         <header class="bg-white shadow-sm sticky top-0 z-50">
             <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
-                <h1 class="text-xl font-bold text-gray-800">📝 My Work Log</h1>
-                <button onclick="logout()" class="text-sm bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Logout</button>
+                <h1 class="text-xl font-bold text-gray-800"><i class="fa-solid fa-pen-to-square text-blue-600"></i> My Work Log</h1>
+                <button onclick="logout()" class="text-sm bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
             </div>
             <!-- Tab Navigation -->
             <div class="max-w-4xl mx-auto px-4 pb-2">
                 <div class="flex gap-1 overflow-x-auto pb-1 scrollbar-hide">
-                    <button onclick="switchTab('work')" class="nav-tab active px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap bg-gray-200 text-gray-700">💼 Work Log</button>
-                    <button onclick="switchTab('quicknote')" class="nav-tab px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap bg-gray-200 text-gray-700">⚡ Quick Note</button>
-                    <button onclick="switchTab('scrum')" class="nav-tab px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap bg-gray-200 text-gray-700">📋 Scrum</button>
-                    <button onclick="switchTab('reflection')" class="nav-tab px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap bg-gray-200 text-gray-700">🪞 Reflection</button>
-                    <button onclick="switchTab('yaadhai')" class="nav-tab px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap bg-gray-200 text-gray-700">🧠 Yaad Hai</button>
-                    <button onclick="switchTab('rating')" class="nav-tab px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap bg-gray-200 text-gray-700">⭐ Rate Day</button>
-                    <button onclick="switchTab('history')" class="nav-tab px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap bg-gray-200 text-gray-700">📊 History</button>
+                    <button onclick="switchTab('work')" class="nav-tab active px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap bg-gray-200 text-gray-700"><i class="fa-solid fa-briefcase"></i> Work Log</button>
+                    <button onclick="switchTab('quicknote')" class="nav-tab px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap bg-gray-200 text-gray-700"><i class="fa-solid fa-bolt"></i> Quick Note</button>
+                    <button onclick="switchTab('scrum')" class="nav-tab px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap bg-gray-200 text-gray-700"><i class="fa-solid fa-clipboard-list"></i> Scrum</button>
+                    <button onclick="switchTab('reflection')" class="nav-tab px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap bg-gray-200 text-gray-700"><i class="fa-solid fa-mirror"></i> Reflection</button>
+                    <button onclick="switchTab('yaadhai')" class="nav-tab px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap bg-gray-200 text-gray-700"><i class="fa-solid fa-brain"></i> Yaad Hai</button>
+                    <button onclick="switchTab('rating')" class="nav-tab px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap bg-gray-200 text-gray-700"><i class="fa-solid fa-star"></i> Rate Day</button>
+                    <button onclick="switchTab('history')" class="nav-tab px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap bg-gray-200 text-gray-700"><i class="fa-solid fa-clock-rotate-left"></i> History</button>
                 </div>
             </div>
         </header>
@@ -115,9 +117,10 @@
                 <div class="bg-white rounded-xl shadow p-4">
                     <h3 class="text-md font-semibold text-gray-700 mb-2">📌 Quick Notes</h3>
                     <div class="flex flex-wrap gap-2 mb-3">
-                        <button onclick="filterQuickNotes('today')" class="px-3 py-1.5 bg-teal-100 text-teal-700 rounded-lg hover:bg-teal-200 font-medium text-sm">Today</button>
-                        <button onclick="filterQuickNotes('week')" class="px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 font-medium text-sm">This Week</button>
-                        <button onclick="filterQuickNotes('month')" class="px-3 py-1.5 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 font-medium text-sm">This Month</button>
+                        <button onclick="filterQuickNotes('today')" class="px-3 py-1.5 bg-teal-100 text-teal-700 rounded-lg hover:bg-teal-200 font-medium text-sm"><i class="fa-solid fa-calendar-day"></i> Today</button>
+                        <button onclick="filterQuickNotes('week')" class="px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 font-medium text-sm"><i class="fa-solid fa-calendar-week"></i> This Week</button>
+                        <button onclick="filterQuickNotes('lastweek')" class="px-3 py-1.5 bg-sky-100 text-sky-700 rounded-lg hover:bg-sky-200 font-medium text-sm"><i class="fa-solid fa-backward"></i> Last Week</button>
+                        <button onclick="filterQuickNotes('month')" class="px-3 py-1.5 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 font-medium text-sm"><i class="fa-solid fa-calendar"></i> This Month</button>
                     </div>
                     <div id="todayQuickNotes" class="space-y-2">
                         <p class="text-gray-400 text-sm">No quick notes yet today.</p>
@@ -244,8 +247,10 @@
                         </select>
                     </div>
                     <div class="flex flex-wrap gap-2">
-                        <button onclick="filterEntries('week')" class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 font-medium text-sm">This Week</button>
-                        <button onclick="filterEntries('month')" class="px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 font-medium text-sm">This Month</button>
+                        <button onclick="filterEntries('today')" class="px-4 py-2 bg-teal-100 text-teal-700 rounded-lg hover:bg-teal-200 font-medium text-sm"><i class="fa-solid fa-calendar-day"></i> Today</button>
+                        <button onclick="filterEntries('week')" class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 font-medium text-sm"><i class="fa-solid fa-calendar-week"></i> This Week</button>
+                        <button onclick="filterEntries('lastweek')" class="px-4 py-2 bg-sky-100 text-sky-700 rounded-lg hover:bg-sky-200 font-medium text-sm"><i class="fa-solid fa-backward"></i> Last Week</button>
+                        <button onclick="filterEntries('month')" class="px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 font-medium text-sm"><i class="fa-solid fa-calendar"></i> This Month</button>
                         <button onclick="filterEntries('q1')" class="px-4 py-2 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 font-medium text-sm">Q1 (Apr-Jun)</button>
                         <button onclick="filterEntries('q2')" class="px-4 py-2 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 font-medium text-sm">Q2 (Jul-Sep)</button>
                         <button onclick="filterEntries('q3')" class="px-4 py-2 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 font-medium text-sm">Q3 (Oct-Dec)</button>
@@ -261,10 +266,10 @@
     <div id="hrApp" class="hidden">
         <header class="bg-white shadow-sm sticky top-0 z-50">
             <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
-                <h1 class="text-xl font-bold text-gray-800">👔 HR Status View</h1>
+                <h1 class="text-xl font-bold text-gray-800"><i class="fa-solid fa-user-tie text-gray-600"></i> HR Status View</h1>
                 <div class="flex gap-2">
-                    <button onclick="exportHRData()" class="text-sm bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">Export CSV</button>
-                    <button onclick="logout()" class="text-sm bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Logout</button>
+                    <button onclick="exportHRData()" class="text-sm bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"><i class="fa-solid fa-file-export"></i> Export CSV</button>
+                    <button onclick="logout()" class="text-sm bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
                 </div>
             </div>
         </header>
@@ -535,7 +540,7 @@
             var dates = Object.keys(grouped).sort().reverse();
             dates.forEach(function(date) {
                 if (filter !== 'today') {
-                    html += '<p class="text-xs font-semibold text-gray-500 mt-2 mb-1">' + date + '</p>';
+                    html += '<p class="text-xs font-semibold text-gray-500 mt-2 mb-1"><i class="fa-regular fa-calendar"></i> ' + formatDateWithDay(date) + '</p>';
                 }
                 grouped[date].forEach(function(e) {
                     html += '<div class="bg-teal-50 border border-teal-200 rounded-lg p-2 text-sm">' +
@@ -661,9 +666,16 @@
             const month = now.getMonth();
             let start, end;
             switch(filter) {
+                case 'today':
+                    start = new Date(now); end = new Date(now); break;
                 case 'week':
                     const day = now.getDay();
                     start = new Date(now); start.setDate(now.getDate() - (day === 0 ? 6 : day - 1));
+                    end = new Date(start); end.setDate(start.getDate() + 6); break;
+                case 'lastweek':
+                    const lwd = now.getDay();
+                    var thisMonday = new Date(now); thisMonday.setDate(now.getDate() - (lwd === 0 ? 6 : lwd - 1));
+                    start = new Date(thisMonday); start.setDate(thisMonday.getDate() - 7);
                     end = new Date(start); end.setDate(start.getDate() + 6); break;
                 case 'month':
                     start = new Date(year, month, 1); end = new Date(year, month + 1, 0); break;
@@ -685,6 +697,14 @@
             return d + ` (${rating}/5)`;
         }
 
+        // Get day name from date string
+        function formatDateWithDay(dateStr) {
+            if (!dateStr) return '';
+            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const d = new Date(dateStr + 'T00:00:00');
+            return `${dateStr} (${days[d.getDay()]})`;
+        }
+
         // Admin History filter
         function filterEntries(filter) {
             const sheetKey = document.getElementById('historySheet').value;
@@ -697,7 +717,7 @@
         }
 
         function renderEntry(e, sheetKey) {
-            let html = `<div class="border rounded-lg p-3 bg-gray-50"><p class="font-semibold text-gray-800 mb-1">${e.date}</p>`;
+            let html = `<div class="border rounded-lg p-3 bg-gray-50"><p class="font-semibold text-gray-800 mb-1"><i class="fa-regular fa-calendar-check text-blue-500"></i> ${formatDateWithDay(e.date)}</p>`;
             switch(sheetKey) {
                 case 'workEntries':
                     html += `<p class="text-sm"><strong>Work:</strong> ${e.workDone}</p>`;
@@ -752,7 +772,7 @@
                 html += '<h3 class="font-semibold text-gray-700 mt-2">💼 Work Log</h3>';
                 html += filteredWork.map(e => `
                     <div class="border rounded-lg p-3 bg-gray-50">
-                        <p class="font-semibold text-gray-800 mb-1">${e.date}</p>
+                        <p class="font-semibold text-gray-800 mb-1"><i class="fa-regular fa-calendar-check text-blue-500"></i> ${formatDateWithDay(e.date)}</p>
                         <p class="text-sm"><strong>Work Done:</strong> ${e.workDone}</p>
                         ${e.jiraTicket ? `<p class="text-sm"><strong>Ticket:</strong> ${e.jiraTicket}</p>` : ''}
                         ${e.blockers ? `<p class="text-sm"><strong>Blockers:</strong> ${e.blockers}</p>` : ''}
@@ -763,7 +783,7 @@
                 html += '<h3 class="font-semibold text-gray-700 mt-4">📋 Scrum Notes</h3>';
                 html += filteredScrum.map(e => `
                     <div class="border rounded-lg p-3 bg-gray-50">
-                        <p class="font-semibold text-gray-800 mb-1">${e.date}</p>
+                        <p class="font-semibold text-gray-800 mb-1"><i class="fa-regular fa-calendar-check text-blue-500"></i> ${formatDateWithDay(e.date)}</p>
                         <p class="text-sm"><strong>Scrum:</strong> ${e.scrumNotes}</p>
                         ${e.todayPlan ? `<p class="text-sm"><strong>Plan:</strong> ${e.todayPlan}</p>` : ''}
                         ${e.scrumBlockers ? `<p class="text-sm"><strong>Blockers:</strong> ${e.scrumBlockers}</p>` : ''}
